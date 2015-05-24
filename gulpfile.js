@@ -1,49 +1,34 @@
 var gulp = require("gulp");
+var sass = require("gulp-sass")
+var browserSync = require("browser-sync").create();
+var reload = browserSync.reload;
 var ejs = require("gulp-ejs");
-var webserver = require("gulp-webserver");
+var prettify = require("gulp-html-prettify");
+var minifyHTML = require("gulp-minify-html");
 
-
-var paths = {
-    js: {
-        source: "src/js/**/*js",
-        watch: "src/js/**/*.js",
-        dest: "dist/js"
-    },
-    sass: {
-        source: "src/sass/**/*.scss",
-        watch: "src/js/**/*.scss",
-        dest: "dist/css"
-    },
-    templates: {
-        source: "src/page/**/*.ejs",
-        watch: "src/page/**/*.ejs",
-        dest: "dist/page"
-    },
-    startPage: "page/index.html"
-};
-
-gulp.task("default", ["webserver", "watch"]);
-
-gulp.task("webserver", function(){
-    gulp.src("dist")
-        .pipe(webserver({
-            host: "localhost",
-            port: 8000,
-            livereload: true,
-            directoryListing: true,
-            open: paths.startPage
-        }))
+gulp.task("serve", ["sass"], function() {
+	browserSync.init({
+        server: {
+		    baseDir: "./app"
+		}
+    });
+	gulp.watch("app/template/**/*.ejs", ["template"]);
+    gulp.watch("app/scss/**/*.scss", ["sass"]);
 });
 
-gulp.task("ejs", function(){
-    gulp.src(paths.templates.source)
-        .pipe(ejs())
-        .pipe(gulp.dest(paths.templates.dest))
+gulp.task("sass", function() {
+	return gulp.src("app/scss/*.scss")
+		.pipe(sass({outputStyle: "expanded"}))
+		.pipe(gulp.dest("app/css"))
+		.pipe(reload({stream: true}));
+});
+gulp.task("template", function() {
+    return gulp.src("app/template/**/*.ejs")
+	    .pipe(ejs())
+		//.pipe(minifyHTML())
+		.pipe(prettify({indent_char:" ", indent_size:4}))
+		.pipe(gulp.dest("app"))
+		.pipe(reload({stream: true}));
 });
 
-gulp.task("watch", function(){
-    gulp.watch(paths.templates.watch,["ejs"]);
-});
-
-
-
+gulp.task("default", ["serve"]);

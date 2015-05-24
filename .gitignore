@@ -1,3 +1,4 @@
-node_modules/
-dist/
-product/
+.sass-cache
+node_modules
+product
+build

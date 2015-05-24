@@ -4,7 +4,7 @@ var browserSync = require("browser-sync").create();
 var reload = browserSync.reload;
 var ejs = require("gulp-ejs");
 var prettify = require("gulp-html-prettify");
-var minifyHTML = require("gulp-minify-html");
+
 
 gulp.task("serve", ["sass"], function() {
 	browserSync.init({
@@ -25,10 +25,20 @@ gulp.task("sass", function() {
 gulp.task("template", function() {
     return gulp.src("app/template/**/*.ejs")
 	    .pipe(ejs())
-		//.pipe(minifyHTML())
 		.pipe(prettify({indent_char:" ", indent_size:4}))
 		.pipe(gulp.dest("app"))
 		.pipe(reload({stream: true}));
 });
 
 gulp.task("default", ["serve"]);
+
+gulp.task("build", function(){
+    gulp.src("app/css/**/*")
+        .pipe(gulp.dest("build/css"));
+    gulp.src("app/images/**/*")
+        .pipe(gulp.dest("build/images"));
+    gulp.src("app/js/**/*")
+	.pipe(gulp.dest("build/js"));
+    gulp.src("app/**/*.html")
+        .pipe(gulp.dest("build"));
+});
